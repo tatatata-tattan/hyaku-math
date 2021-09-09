@@ -1,7 +1,7 @@
 <template>
   <div class="mt-10 mx-auto container">
-    <p class="mt-10 text-9xl font-extrabold text-center">100マス計算</p>
-    <p class="mt-28 mb-2 text-2xl text-center font-bold">モードを選択する</p>
+    <p class="mt-16 text-9xl font-extrabold text-center">100マス計算</p>
+    <p class="mt-20 mb-2 text-2xl text-center font-bold">モードを選択する</p>
     <div class="flex justify-center">
       <label class="mr-8 text-xl">
         <input
