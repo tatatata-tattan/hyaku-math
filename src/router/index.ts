@@ -4,8 +4,8 @@ import {
   Router,
   RouteRecordRaw,
 } from "vue-router";
-import Home from "@/views/Home.vue";
-import Calc from "@/views/Calc.vue";
+import Home from "@/components/pages/Home.vue";
+import Calc from "@/components/pages/Calc.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
