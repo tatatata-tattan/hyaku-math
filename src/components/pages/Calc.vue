@@ -2,8 +2,13 @@
   <div class="mt-10 flex justify-between items-center">
     <div class="mx-auto">
       <p class="font-bold text-9xl font-serif">
-        <span v-show="answerStatus === 1" class="text-green-700">正</span>
-        <span v-show="answerStatus === 2" class="text-blue-800">残</span>
+        <span v-show="answerStatus === 1 && !isFinish" class="text-green-700"
+          >正</span
+        >
+        <span v-show="answerStatus === 2 && !isFinish" class="text-blue-800"
+          >残</span
+        >
+        <span v-show="isFinish" class="text-red-600">終</span>
       </p>
     </div>
     <div class="flex-content">
@@ -26,9 +31,11 @@
         開始する
       </button>
       <div v-show="isStart">
-        <p v-if="isFinish">終了！！！</p>
         <p v-if="!isFinish" class="mb-10 text-lg text-gray-600 font-bold">
           答えを入力してEnterを押してね
+        </p>
+        <p v-if="isFinish" class="mb-10 text-lg text-gray-600 font-bold">
+          お疲れさまでした
         </p>
         <table class="border-solid border-4 border-white shadow-2xl">
           <thead>
@@ -84,7 +91,11 @@
                 {{ result[celIndex][tateIndex] }}
                 <input
                   :id="`input-${celIndex}-${tateIndex}`"
-                  v-show="isTarget({ x: celIndex, y: tateIndex }) && isStart"
+                  v-show="
+                    isTarget({ x: celIndex, y: tateIndex }) &&
+                    isStart &&
+                    !isFinish
+                  "
                   v-model="answer"
                   type="number"
                   @keypress="calc"
@@ -105,8 +116,13 @@
     </div>
     <div class="mx-auto">
       <p class="font-bold text-9xl font-serif">
-        <span v-show="answerStatus === 1" class="text-green-700">解</span>
-        <span v-show="answerStatus === 2" class="text-blue-800">念</span>
+        <span v-show="answerStatus === 1 && !isFinish" class="text-green-700"
+          >解</span
+        >
+        <span v-show="answerStatus === 2 && !isFinish" class="text-blue-800"
+          >念</span
+        >
+        <span v-show="isFinish" class="text-red-600">了</span>
       </p>
     </div>
   </div>
