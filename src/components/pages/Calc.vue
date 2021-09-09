@@ -1,15 +1,115 @@
 <template>
-  <p v-if="isFinish">終了！！！</p>
-  <p>{{ correctMessage }}</p>
-  <p>
-    計算式 {{ tate[currentPosition[0]] }} + {{ yoko[currentPosition[1]] }} =
-  </p>
-  <input
-    v-model="answer"
-    type="number"
-    @keypress="calc"
-    class="border-solid rounded border-2 border-black p-2 h-12"
-  />
+  <div class="mt-10 flex justify-between items-center">
+    <div class="mx-auto">
+      <p class="font-bold text-9xl font-serif">
+        <span v-show="answerStatus === 1" class="text-green-700">正</span>
+        <span v-show="answerStatus === 2" class="text-blue-800">残</span>
+      </p>
+    </div>
+    <div class="flex-content">
+      <button
+        v-if="!isStart"
+        class="
+          mt-10
+          border-solid border-4 border-white
+          bg-green-200
+          rounded-lg
+          shadow-2xl
+          h-20
+          w-60
+          font-bold
+          text-2xl
+        "
+        type="button"
+        @click="startHyakuMath"
+      >
+        開始する
+      </button>
+      <div v-show="isStart">
+        <p v-if="isFinish">終了！！！</p>
+        <p v-if="!isFinish" class="mb-10 text-lg text-gray-600 font-bold">
+          答えを入力してEnterを押してね
+        </p>
+        <table class="border-solid border-4 border-white shadow-2xl">
+          <thead>
+            <tr>
+              <th
+                class="
+                  border-solid border-4 border-white
+                  bg-green-200
+                  w-10
+                  h-10
+                "
+              >
+                <span v-if="mode">+</span><span v-else>×</span>
+              </th>
+              <th
+                v-for="(num, yokoIndex) of yoko"
+                :key="yokoIndex"
+                class="
+                  border-solid border-4 border-white
+                  bg-green-200
+                  w-10
+                  h-10
+                "
+              >
+                <span v-if="isStart">{{ num }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(num, tateIndex) of tate" :key="tateIndex">
+              <th
+                class="
+                  border-solid border-4 border-white
+                  bg-green-200
+                  w-10
+                  h-10
+                "
+              >
+                <span v-if="isStart">{{ num }}</span>
+              </th>
+              <td
+                v-for="(_, celIndex) of yoko"
+                :key="celIndex"
+                class="
+                  border-solid border-2 border-white
+                  bg-gray-100
+                  w-10
+                  h-10
+                  text-center
+                "
+                :class="isTarget({ x: celIndex, y: tateIndex })"
+              >
+                {{ result[celIndex][tateIndex] }}
+                <input
+                  :id="`input-${celIndex}-${tateIndex}`"
+                  v-show="isTarget({ x: celIndex, y: tateIndex }) && isStart"
+                  v-model="answer"
+                  type="number"
+                  @keypress="calc"
+                  class="
+                    bg-red-300
+                    w-8
+                    h-8
+                    text-center
+                    font-bold
+                    focus-visible:bg-red-300
+                  "
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="mx-auto">
+      <p class="font-bold text-9xl font-serif">
+        <span v-show="answerStatus === 1" class="text-green-700">解</span>
+        <span v-show="answerStatus === 2" class="text-blue-800">念</span>
+      </p>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -28,43 +128,69 @@ export default defineComponent({
   setup() {
     const store = useStore();
 
+    const isStart: Ref<boolean> = ref(false);
+
     const answer: Ref<number | null> = ref(null);
 
-    const correctMessage: Ref<string> = ref("");
+    const answerStatus: Ref<number> = ref(0);
     const isFinish: Ref<boolean> = ref(false);
 
     const tate: Ref<number[]> = ref([]);
     const yoko: Ref<number[]> = ref([]);
+    const result: Ref<number[][]> = ref([[]]);
 
-    const currentPosition: Ref<number[]> = ref([0, 0]);
+    const positionX: Ref<number> = ref(0);
+    const positionY: Ref<number> = ref(0);
 
     const mode: ComputedRef<boolean> = computed(() => {
       return store.getters.getIsPlusMode;
     });
 
+    const isTarget = (position: { x: number; y: number }): boolean => {
+      if (position.x === positionX.value && position.y === positionY.value) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
     const calc = (event: KeyboardEvent): void => {
       if (event.code === "Enter") {
         const correct =
-          tate.value[currentPosition.value[0]] +
-          yoko.value[currentPosition.value[1]];
+          tate.value[positionY.value] + yoko.value[positionX.value];
 
         if (correct === answer.value) {
-          correctMessage.value = "正解！";
-          currentPosition.value[0] = currentPosition.value[0] + 1;
-          if (currentPosition.value[0] > 9) {
-            currentPosition.value[0] = 0;
-            currentPosition.value[1] = currentPosition.value[1] + 1;
-            if (currentPosition.value[1] > 9) {
-              currentPosition.value = [0, 0];
+          answerStatus.value = 1;
+          result.value[positionX.value][positionY.value] = correct;
+          positionX.value = positionX.value + 1;
+          if (positionX.value > 9) {
+            positionX.value = 0;
+            positionY.value = positionY.value + 1;
+            if (positionY.value > 9) {
+              positionX.value = 0;
+              positionY.value = 0;
               isFinish.value = true;
             }
           }
         } else {
-          correctMessage.value = "残念";
+          answerStatus.value = 2;
         }
 
         answer.value = null;
+        setTimeout(() => {
+          document
+            .getElementById(`input-${positionX.value}-${positionY.value}`)
+            ?.focus();
+        }, 0);
       }
+    };
+
+    const startHyakuMath = (): void => {
+      isStart.value = true;
+
+      setTimeout(() => {
+        document.getElementById("input-0-0")?.focus();
+      }, 0);
     };
 
     onMounted(() => {
@@ -74,16 +200,23 @@ export default defineComponent({
       yoko.value = [...Array(10)].map((_, i) => {
         return Math.floor(Math.random() * 9);
       });
+      result.value = [...Array(10)].map(() => Array(10).fill(undefined));
     });
 
     return {
-      correctMessage,
+      isStart,
+      answerStatus,
       answer,
       isFinish,
       tate,
       yoko,
-      currentPosition,
+      result,
+      positionX,
+      positionY,
+      mode,
       calc,
+      isTarget,
+      startHyakuMath,
     };
   },
 });
@@ -97,5 +230,12 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 input[type="number"] {
   -moz-appearance: textfield;
+}
+:focus:not(.focus-visible) {
+  outline: none;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
 }
 </style>
