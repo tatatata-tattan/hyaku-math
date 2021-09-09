@@ -12,24 +12,28 @@
       </p>
     </div>
     <div class="flex-content">
-      <button
-        v-if="!isStart"
-        class="
-          mt-10
-          border-solid border-4 border-white
-          bg-green-200
-          rounded-lg
-          shadow-2xl
-          h-20
-          w-60
-          font-bold
-          text-2xl
-        "
-        type="button"
-        @click="startHyakuMath"
-      >
-        開始する
-      </button>
+      <div v-if="!isStart" class="mt-10">
+        <p class="font-bold text-3xl text-center">
+          <span v-if="mode">たし算</span><span v-else>かけ算</span>モード
+        </p>
+        <button
+          class="
+            mt-10
+            border-solid border-4 border-white
+            bg-green-200
+            rounded-lg
+            shadow-2xl
+            h-20
+            w-60
+            font-bold
+            text-2xl
+          "
+          type="button"
+          @click="startHyakuMath"
+        >
+          開始する
+        </button>
+      </div>
       <div v-show="isStart">
         <p class="mb-6 text-4xl font-bold">
           Time: <span v-show="min < 9">0</span>{{ min }}:<span v-show="sec < 9"
@@ -201,8 +205,12 @@ export default defineComponent({
 
     const calc = (event: KeyboardEvent): void => {
       if (event.code === "Enter") {
-        const correct =
-          tate.value[positionY.value] + yoko.value[positionX.value];
+        let correct = 0;
+        if (mode.value) {
+          correct = tate.value[positionY.value] + yoko.value[positionX.value];
+        } else {
+          correct = tate.value[positionY.value] * yoko.value[positionX.value];
+        }
 
         if (correct === answer.value) {
           answerStatus.value = 1;
