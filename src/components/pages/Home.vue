@@ -1,33 +1,42 @@
 <template>
-  <div class="mt-10 container">
-    <p class="text-4xl font-extrabold text-center">100マス計算</p>
-    <div class="mt-8 flex justify-center">
-      <label class="mr-4">
+  <div class="mt-10 mx-auto container">
+    <p class="mt-10 text-9xl font-extrabold text-center">100マス計算</p>
+    <p class="mt-28 mb-2 text-2xl text-center font-bold">モードを選択する</p>
+    <div class="flex justify-center">
+      <label class="mr-8 text-xl">
         <input
           v-model="isPlusMode"
           type="radio"
           name="plus"
           :value="true"
-        />足し算</label
+          class="mr-2"
+        />たし算</label
       >
-      <label>
+      <label class="text-xl">
         <input
           v-model="isPlusMode"
           type="radio"
           name="maltiplication"
           :value="false"
-        />掛け算</label
+          class="mr-2"
+        />かけ算</label
       >
     </div>
     <button
       class="
         flex
-        mt-8
+        justify-center
         mx-auto
-        py-2
-        px-3
-        rounded
-        border-solid border-2 border-black
+        mt-10
+        pt-5
+        border-solid border-4 border-white
+        bg-green-200
+        rounded-lg
+        shadow-2xl
+        h-20
+        w-60
+        font-bold
+        text-2xl
       "
       type="button"
       @click="toCalc"
