@@ -31,11 +31,14 @@
         開始する
       </button>
       <div v-show="isStart">
-        <p v-if="!isFinish" class="mb-10 text-lg text-gray-600 font-bold">
-          答えを入力してEnterを押してね
+        <p class="mb-6 text-4xl font-bold">
+          Time: <span v-show="min < 9">0</span>{{ min }}:<span v-show="sec < 9"
+            >0</span
+          >{{ sec }}:{{ deciSec }}
         </p>
-        <p v-if="isFinish" class="mb-10 text-lg text-gray-600 font-bold">
-          お疲れさまでした
+        <p class="mb-2 text-lg text-gray-600 font-bold">
+          <span v-if="!isFinish">答えを入力してEnterを押してね</span>
+          <span v-if="isFinish">お疲れさまでした！</span>
         </p>
         <table class="border-solid border-4 border-white shadow-2xl">
           <thead>
@@ -158,6 +161,13 @@ export default defineComponent({
     const positionX: Ref<number> = ref(0);
     const positionY: Ref<number> = ref(0);
 
+    const time: Ref<number> = ref(0);
+    const min: Ref<number> = ref(0);
+    const sec: Ref<number> = ref(0);
+    const deciSec: Ref<number> = ref(0);
+
+    let intervalId: NodeJS.Timer | null = null;
+
     const mode: ComputedRef<boolean> = computed(() => {
       return store.getters.getIsPlusMode;
     });
@@ -168,6 +178,25 @@ export default defineComponent({
       } else {
         return false;
       }
+    };
+
+    const countUp = (): void => {
+      time.value = time.value + 1;
+      min.value = Math.floor(time.value / 600);
+      sec.value = Math.floor((time.value - min.value * 600) / 10);
+      deciSec.value = time.value - (min.value * 600 + sec.value * 10);
+    };
+
+    const startHyakuMath = (): void => {
+      isStart.value = true;
+
+      intervalId = setInterval(() => {
+        countUp();
+      }, 100);
+
+      setTimeout(() => {
+        document.getElementById("input-0-0")?.focus();
+      }, 0);
     };
 
     const calc = (event: KeyboardEvent): void => {
@@ -186,6 +215,10 @@ export default defineComponent({
               positionX.value = 0;
               positionY.value = 0;
               isFinish.value = true;
+              if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+              }
             }
           }
         } else {
@@ -201,14 +234,6 @@ export default defineComponent({
       }
     };
 
-    const startHyakuMath = (): void => {
-      isStart.value = true;
-
-      setTimeout(() => {
-        document.getElementById("input-0-0")?.focus();
-      }, 0);
-    };
-
     onMounted(() => {
       tate.value = [...Array(10)].map((_, i) => {
         return Math.floor(Math.random() * 9);
@@ -217,6 +242,7 @@ export default defineComponent({
         return Math.floor(Math.random() * 9);
       });
       result.value = [...Array(10)].map(() => Array(10).fill(undefined));
+      time.value = 0;
     });
 
     return {
@@ -229,6 +255,9 @@ export default defineComponent({
       result,
       positionX,
       positionY,
+      min,
+      sec,
+      deciSec,
       mode,
       calc,
       isTarget,
