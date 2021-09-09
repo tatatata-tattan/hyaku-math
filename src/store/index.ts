@@ -1,10 +1,8 @@
 import { createStore } from "vuex";
+import hyakuMath from "./modules/hyakuMath";
 
-export const store = createStore({
-  state: {},
-  mutations: {},
-  actions: {},
-  modules: {},
+export default createStore({
+  modules: {
+    hyakuMath,
+  },
 });
-
-export default store;
