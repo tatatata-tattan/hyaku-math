@@ -4,7 +4,7 @@
     <div class="mt-8 flex justify-center">
       <label class="mr-4">
         <input
-          v-model="method"
+          v-model="isPlusMode"
           type="radio"
           name="plus"
           :value="true"
@@ -12,7 +12,7 @@
       >
       <label>
         <input
-          v-model="method"
+          v-model="isPlusMode"
           type="radio"
           name="maltiplication"
           :value="false"
@@ -38,22 +38,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "vue";
-import { Router, useRouter } from "vue-router";
+import { defineComponent, onMounted, ref, Ref } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "Home",
   setup() {
-    const router: Router = useRouter();
+    const store = useStore();
+    const router = useRouter();
 
-    const method: Ref<boolean> = ref(false);
+    const isPlusMode: Ref<boolean> = ref(true);
 
     const toCalc = (): void => {
+      store.dispatch("updateIsPlusMode", isPlusMode.value);
       router.push("/calc");
     };
 
+    onMounted(() => {
+      isPlusMode.value = store.getters.getIsPlusMode;
+    });
+
     return {
-      method,
+      isPlusMode,
       toCalc,
     };
   },
