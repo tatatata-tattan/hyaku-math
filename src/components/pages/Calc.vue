@@ -204,7 +204,7 @@ export default defineComponent({
     };
 
     const calc = (): void => {
-      if (!answer.value) {
+      if (answer.value === null) {
         return;
       }
 
