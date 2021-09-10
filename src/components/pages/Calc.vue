@@ -41,7 +41,7 @@
           >{{ sec }}:{{ deciSec }}
         </p>
         <p class="mb-2 text-lg text-gray-600 font-bold">
-          <span v-if="!isFinish">答えを入力してEnterを押してね</span>
+          <span v-if="!isFinish">赤のマスの答えを入力してね </span>
           <span v-if="isFinish">お疲れさまでした！</span>
         </p>
         <table class="border-solid border-4 border-white shadow-2xl">
@@ -105,7 +105,7 @@
                   "
                   v-model="answer"
                   type="number"
-                  @keypress="calc"
+                  @keyup="calc"
                   class="
                     bg-red-300
                     w-8
@@ -203,43 +203,49 @@ export default defineComponent({
       }, 0);
     };
 
-    const calc = (event: KeyboardEvent): void => {
-      if (event.code === "Enter") {
-        let correct = 0;
-        if (mode.value) {
-          correct = tate.value[positionY.value] + yoko.value[positionX.value];
-        } else {
-          correct = tate.value[positionY.value] * yoko.value[positionX.value];
-        }
+    const calc = (): void => {
+      if (!answer.value) {
+        return;
+      }
 
-        if (correct === answer.value) {
-          answerStatus.value = 1;
-          result.value[positionX.value][positionY.value] = correct;
-          positionX.value = positionX.value + 1;
-          if (positionX.value > 9) {
+      let correct = 0;
+      if (mode.value) {
+        correct = tate.value[positionY.value] + yoko.value[positionX.value];
+      } else {
+        correct = tate.value[positionY.value] * yoko.value[positionX.value];
+      }
+
+      if (correct / 10 >= 1 && answer.value < 10) {
+        return;
+      }
+
+      if (correct === answer.value) {
+        answerStatus.value = 1;
+        result.value[positionX.value][positionY.value] = correct;
+        positionX.value = positionX.value + 1;
+        if (positionX.value > 9) {
+          positionX.value = 0;
+          positionY.value = positionY.value + 1;
+          if (positionY.value > 9) {
             positionX.value = 0;
-            positionY.value = positionY.value + 1;
-            if (positionY.value > 9) {
-              positionX.value = 0;
-              positionY.value = 0;
-              isFinish.value = true;
-              if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-              }
+            positionY.value = 0;
+            isFinish.value = true;
+            if (intervalId) {
+              clearInterval(intervalId);
+              intervalId = null;
             }
           }
-        } else {
-          answerStatus.value = 2;
         }
-
-        answer.value = null;
-        setTimeout(() => {
-          document
-            .getElementById(`input-${positionX.value}-${positionY.value}`)
-            ?.focus();
-        }, 0);
+      } else {
+        answerStatus.value = 2;
       }
+
+      answer.value = null;
+      setTimeout(() => {
+        document
+          .getElementById(`input-${positionX.value}-${positionY.value}`)
+          ?.focus();
+      }, 0);
     };
 
     onMounted(() => {
